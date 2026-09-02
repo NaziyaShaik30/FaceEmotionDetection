@@ -1,29 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audio Classification</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-        input[type="file"] { margin: 20px 0; }
-        button { padding: 10px 15px; font-size: 16px; cursor: pointer; }
-    </style>
+  <meta charset="UTF-8">
+  <title>Emotion Detection</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(120deg, #74ebd5, #ACB6E5);
+      text-align: center;
+      padding: 30px;
+    }
+    h1 {
+      color: #333;
+    }
+    .upload-box {
+      border: 3px dashed #333;
+      padding: 20px;
+      margin: 20px auto;
+      border-radius: 15px;
+      background-color: white;
+      width: 60%;
+    }
+    input[type="file"], button {
+      margin: 10px;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: none;
+      background: #5A67D8;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #434190;
+    }
+    img {
+      margin-top: 20px;
+      border-radius: 15px;
+      width: 400px;
+      height: auto;
+      border: 3px solid #333;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    .prediction {
+      font-size: 24px;
+      font-weight: bold;
+      margin-top: 15px;
+      color: #222;
+      background-color: #fff;
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 10px;
+    }
+  </style>
 </head>
 <body>
 
-    <h1>Upload an Audio File</h1>
+  <h1>🎭 Emotion Detection Using Face</h1>
 
-    <form action="/" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".wav,.mp3,.ogg" required>
-        <br>
-        <button type="submit">Predict</button>
+  <div class="upload-box">
+    <form id="uploadForm" method="POST" action="/predict" enctype="multipart/form-data">
+      <h3>Select an option:</h3>
+      <input type="file" name="file" accept="image/*"><br>
+      <button type="button" onclick="openCamera()">📸 Use Camera</button><br>
+      <input type="hidden" name="camera_image" id="camera_image">
+      <button type="submit">Submit</button>
     </form>
+  </div>
 
-    {% if filename %}
-        <h2>Uploaded File: {{ filename }}</h2>
-        <h3>Predicted Label: {{ label }}</h3>
-    {% endif %}
+  {% if img_path %}
+    <div>
+      <img src="{{ img_path }}" alt="Uploaded Image">
+      <div class="prediction">{{ prediction }}</div>
+    </div>
+  {% endif %}
+
+  <video id="video" width="400" height="300" autoplay style="display:none;"></video>
+  <canvas id="canvas" width="400" height="300" style="display:none;"></canvas>
+
+  <script>
+    function openCamera() {
+      const video = document.getElementById('video');
+      video.style.display = 'block';
+
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          video.srcObject = stream;
+          const captureButton = document.createElement('button');
+          captureButton.innerText = '📷 Capture';
+          captureButton.onclick = () => {
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL('image/png');
+            document.getElementById('camera_image').value = dataUrl;
+            video.srcObject.getTracks().forEach(track => track.stop());
+            video.style.display = 'none';
+            captureButton.remove();
+          };
+          document.body.appendChild(captureButton);
+        })
+        .catch(err => alert('Camera access denied: ' + err));
+    }
+  </script>
 
 </body>
 </html>

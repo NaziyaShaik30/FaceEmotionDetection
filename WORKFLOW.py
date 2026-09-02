@@ -1,16 +1,13 @@
 import matplotlib.pyplot as plt
 import networkx as nx
-
 # Create a directed graph
 G = nx.DiGraph()
-
 # Define workflow steps
 steps = [
     "Retrieve Dataset", "Extract Labels", "Load Audio Files", "Extract MFCC Features",
     "Check Sequence Length", "Pad or Truncate", "Store Features (X) & Labels (y)",
     "Convert to NumPy Arrays", "Done"
 ]
-
 # Add edges to define the workflow
 edges = [
     ("Retrieve Dataset", "Extract Labels"),
